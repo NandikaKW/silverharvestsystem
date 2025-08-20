@@ -1,11 +1,16 @@
 package com.shpms.silverharvestsystem.controller;
 
 import com.shpms.silverharvestsystem.dto.MoniteringLogDto;
+import com.shpms.silverharvestsystem.exception.DataPersistException;
 import com.shpms.silverharvestsystem.service.MonitoringLogService;
+import com.shpms.silverharvestsystem.util.AppUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -19,10 +24,40 @@ public class MonitorLogController {
     private final MonitoringLogService monitoringLogService;
 
 
-    @PostMapping("/save")
-    public ResponseEntity<String> saveLog(@RequestBody MoniteringLogDto logDto) {
-        monitoringLogService.saveLog(logDto);
-        return ResponseEntity.ok("Monitoring Log saved successfully");
+    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE,
+            produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Void> saveLogs( @RequestParam("logCode") String logCode,
+                                          @RequestParam("logDate") String logDate,
+                                          @RequestParam("logDetails") String logDetails,
+                                          @RequestParam("observedImage") MultipartFile observedImage ) {
+        try {
+
+            String base64ProPic = "";
+
+            byte [] bytesProPic = observedImage.getBytes();
+            base64ProPic = AppUtil.ImageToBase64(bytesProPic);
+
+
+
+            MoniteringLogDto logDto = new MoniteringLogDto();
+            logDto.setLogCode(logCode);
+            logDto.setLogDate(logDate);
+            logDto.setLogDetails(logDetails);
+            logDto.setObservedImage(base64ProPic);
+
+
+
+
+            monitoringLogService.saveLog(logDto);
+
+            return new ResponseEntity<>(HttpStatus.CREATED);
+        }catch (DataPersistException e){
+            e.printStackTrace();
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }catch (Exception e){
+            e.printStackTrace();
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
     @GetMapping("/all")
@@ -34,13 +69,38 @@ public class MonitorLogController {
     public ResponseEntity<MoniteringLogDto> getLogById(@PathVariable String logCode) {
         return ResponseEntity.ok(monitoringLogService.getLogById(logCode));
     }
+    @PutMapping(value = "/{logID}" ,consumes = MediaType.MULTIPART_FORM_DATA_VALUE,
+            produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Void> updatedLogs(@PathVariable ("logID") String logID,
 
-    @PutMapping("/update/{logCode}")
-    public ResponseEntity<String> updateLog(@PathVariable String logCode, @RequestBody MoniteringLogDto logDto) {
-        monitoringLogService.updateLog(logCode, logDto);
-        return ResponseEntity.ok("Monitoring Log updated successfully");
+                                            @RequestParam("logDate") String logDate,
+                                            @RequestParam("logDetails") String logDetails,
+                                            @RequestParam("observedImage") MultipartFile observedImage ) {
+
+        try {
+            String base64ProPic = "";
+
+            byte[] bytesProPic = observedImage.getBytes();
+            base64ProPic = AppUtil.ImageToBase64(bytesProPic);
+
+
+            MoniteringLogDto logDto = new MoniteringLogDto();
+            logDto.setLogCode(logID);
+            logDto.setLogDate(logDate);
+            logDto.setLogDetails(logDetails);
+            logDto.setObservedImage(base64ProPic);
+
+            //Build the Object
+            monitoringLogService.updatedLogs(logID, logDto);
+            return new ResponseEntity<>(HttpStatus.CREATED);
+        } catch (DataPersistException e) {
+            e.printStackTrace();
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
-
     @DeleteMapping("/delete/{logCode}")
     public ResponseEntity<String> deleteLog(@PathVariable String logCode) {
         monitoringLogService.deleteLog(logCode);

@@ -18,7 +18,8 @@ public class Field implements SuperEntity{
     @Id
     private String fieldCode;
     private String fieldName;
-    private Point fieldLocation;
+    @Column(name = "field_location")
+    private String fieldLocation;
     private Double Extent_size;
     @Column(columnDefinition = "LONGTEXT")
     private String fieldImageOne;

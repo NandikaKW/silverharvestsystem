@@ -16,7 +16,7 @@ import java.util.List;
 public class FieldDto implements SuperDTO{
     private String fieldCode;
     private String fieldName;
-    private Point fieldLocation;
+    private String fieldLocation;
     private Double Extent_size;
     private String fieldImageOne;
     private String fieldImageTwo;
