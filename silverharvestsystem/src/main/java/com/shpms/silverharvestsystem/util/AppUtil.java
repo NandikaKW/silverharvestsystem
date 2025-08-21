@@ -6,6 +6,28 @@ public class AppUtil {
     public static String ImageToBase64(byte [] profilePic){
         return Base64.getEncoder().encodeToString(profilePic);
     }
+    public static String generateOrderId(String lastOrderId) {
+        if (lastOrderId == null || lastOrderId.isEmpty() || !lastOrderId.matches("^ORD\\d+$")) {
+            return "ORD001";
+        } else {
+            String numericPart = lastOrderId.substring(3); // remove "ORD" prefix
+            int numericValue = Integer.parseInt(numericPart);
+            int nextNumericValue = numericValue + 1;
+            String nextNumericPart = String.format("%03d", nextNumericValue); // Pad with leading zeros
+            return "ORD" + nextNumericPart;
+        }
+    }
+    public static String generateOrderDetailId(String lastDetailId) {
+        if (lastDetailId == null || lastDetailId.isEmpty() || !lastDetailId.matches("^OD\\d+$")) {
+            return "OD001";
+        } else {
+            String numericPart = lastDetailId.substring(2); // remove "OD"
+            int numericValue = Integer.parseInt(numericPart);
+            int nextNumericValue = numericValue + 1;
+            String nextNumericPart = String.format("%03d", nextNumericValue);
+            return "OD" + nextNumericPart;
+        }
+    }
 
     public static String generateCropCode(String lastCropCode) {
         if (lastCropCode == null || lastCropCode.isEmpty() || !lastCropCode.matches("^C\\d+$")) {

@@ -24,11 +24,10 @@ import java.util.stream.Collectors;
 public class StaffServiceImpl implements StaffService {
     private final StaffRepo staffRepo;
     private final ModelMapper modelMapper;
-    private Mapping mapping;
-    private FieldRepo fieldRepo;
+    private final Mapping mapping;
+    private  final FieldRepo fieldRepo;
 
     @Override
-
     public void SaveStaff(StaffDto staffDto) {
         Staff staff = mapping.toStaffEntity(staffDto);
 
