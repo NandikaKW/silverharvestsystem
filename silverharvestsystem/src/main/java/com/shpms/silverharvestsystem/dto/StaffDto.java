@@ -1,5 +1,6 @@
 package com.shpms.silverharvestsystem.dto;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.shpms.silverharvestsystem.Enum.Gender;
 import com.shpms.silverharvestsystem.Enum.Role;
 import lombok.AllArgsConstructor;
@@ -15,22 +16,24 @@ import java.util.List;
 @Data
 @ToString
 public class StaffDto implements SuperDTO{
-    private String StaffId;
-    private String FirstName;
-    private String LastName;
-    private String Designation;
-    private Gender Gender;
-    private Date JoinedDate;
-    private Date DOB;
+    private String staffId;
+    private String firstName;
+    private String lastName;
+    private String designation;
+    private Gender gender;
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
+    private Date dob;
+
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
+    private Date joinedDate;
+
     private String address;
-    private String Contact_No;
-    private String Email;
+    private String contactNo;
+    private String email;
     private Role role;
 
     private List<VehicleDto> vehicleDtos;
     private List<EquipmentDto> equipmentDtos;
-
-    @ToString.Exclude
     private List<FieldDto> fields;
 
     private String logCode;

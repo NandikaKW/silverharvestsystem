@@ -17,7 +17,7 @@ public class FieldDto implements SuperDTO{
     private String fieldCode;
     private String fieldName;
     private String fieldLocation;
-    private Double Extent_size;
+    private Double extent_size;
     private String fieldImageOne;
     private String fieldImageTwo;
     private java.util.List<CropDTO> crops;
@@ -26,4 +26,13 @@ public class FieldDto implements SuperDTO{
     @JsonIgnore
     private List<StaffDto> staffs;
     private String logCode;
+
+    // Add getter and setter with correct naming
+    public Double getExtent_size() {
+        return extent_size;
+    }
+
+    public void setExtent_size(Double extent_size) {
+        this.extent_size = extent_size;
+    }
 }

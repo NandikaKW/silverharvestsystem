@@ -30,37 +30,47 @@ public class FieldController {
             @RequestParam("fieldName") String fieldName,
             @RequestParam("fieldLocation") String fieldLocation,
             @RequestParam("extent_size") Double extentSize,
-            @RequestParam("fieldImageOne") MultipartFile fieldImageOne,
-            @RequestParam("fieldImageTwo") MultipartFile fieldImageTwo,
+            @RequestParam(value = "fieldImageOne", required = false) MultipartFile fieldImageOne,
+            @RequestParam(value = "fieldImageTwo", required = false) MultipartFile fieldImageTwo,
             @RequestParam("logCode") String logCode) {
-        try {
-            // Convert image files to Base64 strings
-            String base64ImageOne = AppUtil.ImageToBase64(fieldImageOne.getBytes());
-            String base64ImageTwo = AppUtil.ImageToBase64(fieldImageTwo.getBytes());
 
-            // Create FieldDto
+        try {
+            log.info("Received field save request - Code: {}, Name: {}, Location: {}",
+                    fieldCode, fieldName, fieldLocation);
+
+            String base64ImageOne = null;
+            String base64ImageTwo = null;
+
+            if (fieldImageOne != null && !fieldImageOne.isEmpty()) {
+                base64ImageOne = AppUtil.ImageToBase64(fieldImageOne.getBytes());
+                log.info("Image 1 processed, size: {}", base64ImageOne != null ? base64ImageOne.length() : 0);
+            }
+            if (fieldImageTwo != null && !fieldImageTwo.isEmpty()) {
+                base64ImageTwo = AppUtil.ImageToBase64(fieldImageTwo.getBytes());
+                log.info("Image 2 processed, size: {}", base64ImageTwo != null ? base64ImageTwo.length() : 0);
+            }
+
             FieldDto fieldDto = new FieldDto();
             fieldDto.setFieldCode(fieldCode);
             fieldDto.setFieldName(fieldName);
-            fieldDto.setFieldLocation(fieldLocation);   // ✅ now a String
+            fieldDto.setFieldLocation(fieldLocation);
             fieldDto.setExtent_size(extentSize);
             fieldDto.setFieldImageOne(base64ImageOne);
             fieldDto.setFieldImageTwo(base64ImageTwo);
             fieldDto.setLogCode(logCode);
 
-            // Save the field
             fieldService.SaveField(fieldDto);
+            log.info("Field saved successfully: {}", fieldCode);
 
             return new ResponseEntity<>(HttpStatus.CREATED);
         } catch (DataPersistException e) {
-            e.printStackTrace();
+            log.error("Data persistence error: {}", e.getMessage(), e);
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("Unexpected error: {}", e.getMessage(), e);
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-
 
     @GetMapping("/{fieldCode}")
     public ResponseEntity<FieldDto> getField(@PathVariable String fieldCode) {
@@ -76,13 +86,14 @@ public class FieldController {
 
     @PutMapping(value = "/{fieldCode}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Void> updateField(@PathVariable("fieldCode") String fieldCode,
-                                            @RequestParam("fieldName") String fieldName,
-                                            @RequestParam("fieldLocation") String fieldLocation,
-                                            @RequestParam("extent_size") Double extentSize,
-                                            @RequestParam(value = "fieldImageOne", required = false) MultipartFile fieldImageOne,
-                                            @RequestParam(value = "fieldImageTwo", required = false) MultipartFile fieldImageTwo,
-                                            @RequestParam("logCode") String logCode) {
+    public ResponseEntity<Void> updateField(
+            @PathVariable String fieldCode, // ✅ This should be @PathVariable, not @RequestParam
+            @RequestParam("fieldName") String fieldName,
+            @RequestParam("fieldLocation") String fieldLocation,
+            @RequestParam("extent_size") Double extentSize,
+            @RequestParam(value = "fieldImageOne", required = false) MultipartFile fieldImageOne,
+            @RequestParam(value = "fieldImageTwo", required = false) MultipartFile fieldImageTwo,
+            @RequestParam("logCode") String logCode) {
         try {
             String base64ImageOne = null;
             String base64ImageTwo = null;
@@ -95,7 +106,7 @@ public class FieldController {
             }
 
             FieldDto updatedFieldDTO = new FieldDto();
-            updatedFieldDTO.setFieldCode(fieldCode);
+            updatedFieldDTO.setFieldCode(fieldCode); // Use the path variable
             updatedFieldDTO.setFieldName(fieldName);
             updatedFieldDTO.setFieldLocation(fieldLocation);
             updatedFieldDTO.setExtent_size(extentSize);

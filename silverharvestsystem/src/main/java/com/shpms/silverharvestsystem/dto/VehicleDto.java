@@ -13,5 +13,5 @@ public class VehicleDto implements SuperDTO{
     private String vehicleCategory;
     private String fuelType;
     private String status;
-    private String StaffId;
+    private String staffId; // Change from StaffId to staffId (lowercase 's')
 }

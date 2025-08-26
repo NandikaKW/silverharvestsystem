@@ -53,8 +53,8 @@ public class CropController {
             cropDto.setCommonName(commonName);
             cropDto.setScientificName(scientificName);
             cropDto.setCropImage(base64ProPic);
-            cropDto.setCategoryId(category);
-            cropDto.setSeasonId(cropSeason);
+            cropDto.setCategory(category);
+            cropDto.setCropSeason(cropSeason);
             cropDto.setFieldCode(fieldCode);
             cropDto.setLogCode(logCode);
 
@@ -62,41 +62,6 @@ public class CropController {
 
             cropService.saveCrop(cropDto);
             return new ResponseEntity<>(HttpStatus.CREATED);
-        }catch (RuntimeException e){
-            e.printStackTrace();
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-        }catch (Exception e){
-            e.printStackTrace();
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-    }
-
-
-    @PutMapping(value = "/{cropId}")
-    public ResponseEntity<Void> updateNote(@PathVariable ("cropId") String cropId,
-                                           @RequestParam("commonName") String commonName,
-                                           @RequestParam("scientificName") String scientificName,
-                                           @RequestParam("cropImage") MultipartFile cropImage,
-                                           @RequestParam("category") String category,
-                                           @RequestParam("cropSeason") String cropSeason){
-        //validations
-        try {
-            String base64ProPic = "";
-
-            byte[] bytesProPic = cropImage.getBytes();
-            base64ProPic = AppUtil.ImageToBase64(bytesProPic);
-
-
-            CropDTO cropDto = new CropDTO();
-            cropDto.setCropCode(cropId);
-            cropDto.setCommonName(commonName);
-            cropDto.setScientificName(scientificName);
-            cropDto.setCropImage(base64ProPic);
-            cropDto.setCategoryId(category);
-            cropDto.setSeasonId(cropSeason);
-
-            cropService.updateCrop(cropId,cropDto);
-            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
         }catch (DataPersistException e){
             e.printStackTrace();
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
@@ -105,6 +70,45 @@ public class CropController {
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+
+
+    @PutMapping(value = "/{cropId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<Void> updateCrop(
+            @PathVariable("cropId") String cropId,
+            @RequestParam("commonName") String commonName,
+            @RequestParam("scientificName") String scientificName,
+            @RequestParam(value = "cropImage", required = false) MultipartFile cropImage,
+            @RequestParam("category") String category,
+            @RequestParam("cropSeason") String cropSeason,
+            @RequestParam("fieldCode") String fieldCode,
+            @RequestParam("logCode") String logCode) {
+        try {
+            CropDTO cropDto = new CropDTO();
+            cropDto.setCropCode(cropId);
+            cropDto.setCommonName(commonName);
+            cropDto.setScientificName(scientificName);
+            cropDto.setCategory(category);
+            cropDto.setCropSeason(cropSeason);
+            cropDto.setFieldCode(fieldCode);
+            cropDto.setLogCode(logCode);
+
+            if (cropImage != null && !cropImage.isEmpty()) {
+                byte[] bytesProPic = cropImage.getBytes();
+                String base64ProPic = AppUtil.ImageToBase64(bytesProPic);
+                cropDto.setCropImage(base64ProPic);
+            }
+
+            cropService.updateCrop(cropId, cropDto);
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        } catch (DataPersistException e) {
+            e.printStackTrace();
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
 
 
     @DeleteMapping("/{cropCode}")

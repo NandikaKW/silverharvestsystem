@@ -77,20 +77,35 @@ public class CropServiceImpl implements CropService {
 
 
     @Override
-    public void updateCrop(String CropId, CropDTO cropDto) {
-        Optional<Crop> findNote = cropRepo.findById(CropId);
-        if (!findNote.isPresent()) {
-            throw new DataPersistException("Note not found");
-        }else {
-            findNote.get().setCategory(cropDto.getCategoryId());
-            findNote.get().setCropImage(cropDto.getCropImage());
-            findNote.get().setCropSeason(cropDto.getSeasonId());
-            findNote.get().setCommonName(cropDto.getCommonName());
-            findNote.get().setScientificName(cropDto.getScientificName());
+    public void updateCrop(String cropId, CropDTO cropDto) {
+        Crop crop = cropRepo.findById(cropId)
+                .orElseThrow(() -> new DataPersistException("Crop not found"));
 
+        crop.setCategory(cropDto.getCategory());
+        crop.setCommonName(cropDto.getCommonName());
+        crop.setScientificName(cropDto.getScientificName());
+        crop.setCropSeason(cropDto.getCropSeason());
 
+        // only update image if new one is provided
+        if (cropDto.getCropImage() != null) {
+            crop.setCropImage(cropDto.getCropImage());
         }
+
+        // ⚠️ because your entity has @ManyToOne for field and log
+        if (cropDto.getFieldCode() != null) {
+            Field field = new Field();
+            field.setFieldCode(cropDto.getFieldCode());
+            crop.setField(field);
+        }
+        if (cropDto.getLogCode() != null) {
+            MoniteringLog log = new MoniteringLog();
+            log.setLogCode(cropDto.getLogCode());
+            crop.setLog(log);
+        }
+
+        cropRepo.save(crop); // ✅ persist changes
     }
+
 
     @Override
     public void deleteCrop(String cropCode) {

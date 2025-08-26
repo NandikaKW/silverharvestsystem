@@ -19,19 +19,22 @@ import java.util.List;
 @Table(name = "Staff")
 public class Staff implements SuperEntity {
     @Id
-    private String StaffId;
-    private String FirstName;
-    private String LastName;
-    private String Designation;
+    private String staffId;
+    private String firstName;
+    private String lastName;
+    private String designation;
 
     @Enumerated(EnumType.STRING)
-    private Gender Gender;
+    private Gender gender;
 
-    private Date JoinedDate;
-    private Date DOB;
+    private Date joinedDate;
+    private Date dob;
     private String address;
-    private String Contact_No;
-    private String Email;
+
+    @Column(name = "contact_no")
+    private String contactNo;
+
+    private String email;
 
     @OneToMany(mappedBy = "staff",cascade = CascadeType.REMOVE)
     @JsonManagedReference  // Serialize the vehicles for the staff
@@ -56,4 +59,12 @@ public class Staff implements SuperEntity {
     @JsonBackReference  // Prevent infinite recursion on the log relationship
     @JoinColumn(name = "logCode", nullable = false)
     private MoniteringLog log;
+
+    public String getContactNo() {
+        return contactNo;
+    }
+
+    public void setContactNo(String contactNo) {
+        this.contactNo = contactNo;
+    }
 }
